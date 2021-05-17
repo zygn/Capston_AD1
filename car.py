@@ -4,6 +4,7 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
 import random as rd
+import matplotlib.pyplot as plt
 
 class DQN:
     def __init__(self, inp, wp):
@@ -44,13 +45,13 @@ class DQN:
         return reward
     
     def ln(self):
-        print(1)
         loc = [5,0]
         # dis = 0.9
         speed = np.random.randint(2,7)
+        print(speed)
         rAll = []
         for e in range(100):        
-            cho = np.arange(self.input_size)
+            cho = np.arange(self.output_size)
         
             target = self.model.predict(self.inp)
             
@@ -69,8 +70,7 @@ class DQN:
             print(target[0][action])
             self.model.fit(self.inp, target, epochs=1, verbose=0)
     
-    
-        rAll += reward
+            rAll.append(reward)
 
         return rAll
 
@@ -87,7 +87,11 @@ def make_circle(loc, r):
         # points = np.append(points, np.array([[x, y]]), axis = 0)
         
     return points
-inp = [0,0,0,0,0,1,0,0,0,0,0]
+    
+inp = np.array([[0,0,0,0,0,1,0,0,0,0,0]])
 P = DQN(inp, 1)
-P.ln()
+rALL = P.ln()
 
+plt.figure()
+plt.plot(rALL)
+plt.show()
