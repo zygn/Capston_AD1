@@ -4,6 +4,7 @@ run_name: 'mapwide'
 perf_num: 6
 
 # map paths
+# map_path: './example_map'
 map_path: './obs'
 map_ext: '.png'
 

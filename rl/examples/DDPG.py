@@ -1,4 +1,5 @@
 import time
+from tensorflow.python.eager.context import device
 import yaml
 import gym
 import numpy as np
@@ -8,6 +9,12 @@ import random
 from purpursuit import PurePursuitPlanner
 from tensorflow.keras.layers import Dense, Flatten
 from tensorflow.keras import optimizers, initializers
+# from tensorflow.python.compiler import mlir
+from tensorflow.python.compiler.mlcompute import mlcompute
+
+mlcompute.set_mlc_device(device_name='gpu')
+
+
 from argparse import Namespace
 from collections import deque
 
@@ -95,11 +102,11 @@ class Agent:
         noise = self.noise.make_noise(self.action_size)
         speed = speed + noise
         speed = np.clip(speed, self.min_speed, self.max_speed)[0][0]
-        print('b_speed:',speed)
+        print('b_speed:',speed, end='\r')
         
         if np.isnan(speed):
             speed = np.mean([i for i in range(1,21)])
-        print('a_speed:',speed)
+        print('a_speed:',speed, end='\r')
         
         return speed
 
@@ -157,8 +164,8 @@ class Agent:
         self.target_actor.set_weights(new_weights)
 
     def save_model(self):
-        print('saving network...')
-        print('Please wait...')
+        print('saving network...', end="\r")
+        print('Please wait...', end='\r')
         self.actor.save('actor.h5')
         self.critic.save('critic.h5')
 
@@ -173,7 +180,7 @@ if __name__ == '__main__':
     with open('config_example_map.yaml') as file:
         conf_dict = yaml.load(file, Loader=yaml.FullLoader)
     conf = Namespace(**conf_dict)
-    episode = 100
+    episode = 1000
     step = 0
 
     #gym_enviroment 생성
@@ -224,4 +231,4 @@ if __name__ == '__main__':
             step += 1
             env.render(mode='human')
 
-        print('episode:',episode,'Sim elapsed time:', laptime, 'Real elapsed time:', time.time()-start)
+        print('episode:',i ,'Sim elapsed time:', laptime, 'Real elapsed time:', time.time()-start)
