@@ -32,6 +32,7 @@ if __name__ == '__main__':
 
         while not done:
             desire_obs = list()
+            print(f"X: {obs['poses_x']}, Y: {obs['poses_y']}")
             for i in range(1, len(temp_obs) - 1):
                 if (temp_obs[i] > 5. and temp_obs[i] < 15.) and (temp_obs[i-1] * 1.4 < temp_obs[i] or temp_obs[i-1] * 0.6 > temp_obs[i]):
                     start_idx_temp = i
