@@ -15,7 +15,7 @@ stheta: 3.14159
 # raceline path and indices
 wpt_path: 'new_round/wps.csv'
 wpt_delim: ';'
-wpt_rowskip: 3
+wpt_rowskip: 1
 wpt_xind: 1
 wpt_yind: 2
 wpt_thind: 3
