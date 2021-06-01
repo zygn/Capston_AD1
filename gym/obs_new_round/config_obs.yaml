@@ -5,6 +5,7 @@ perf_num: 6
 
 # map paths
 map_path: 'obs_new_round/obs_new_round'
+# map_path: 'test_map/new_round'
 map_ext: '.png'
 
 # starting pose for map

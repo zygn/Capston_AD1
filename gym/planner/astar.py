@@ -13,15 +13,15 @@ import math
 import random
 import matplotlib.pyplot as plt
 import numpy as np
+import logging as log
 
-show_animation = True
 
 
 class AStarPlanner:
 
     
 
-    def __init__(self, ox, oy, resolution, rr):
+    def __init__(self, resolution, rr, show_animation=True):
         """
         Initialize grid map for a star planning
 
@@ -38,7 +38,9 @@ class AStarPlanner:
         self.obstacle_map = None
         self.x_width, self.y_width = 0, 0
         self.motion = self.get_motion_model()
-        self.calc_obstacle_map(ox, oy)
+        self.show_animation = show_animation
+        self.fine = True
+
 
 
     class Node:
@@ -75,14 +77,15 @@ class AStarPlanner:
         open_set, closed_set = dict(), dict()
         open_set[self.calc_grid_index(start_node)] = start_node
 
-        WEIGHT = 1.0
+        WEIGHT = 10.0
         # WEIGHT = float(random.random() * 3)
         # print("weight:", WEIGHT)
-        show_animation = True
+        
 
         while 1:
             if len(open_set) == 0:
-                print("Open set is empty..")
+                # print("Open set is empty..")
+                log.error("A* failed.")
                 break
 
             c_id = min(
@@ -94,7 +97,7 @@ class AStarPlanner:
             current = open_set[c_id]
 
             # show graph
-            if show_animation:  # pragma: no cover
+            if self.show_animation:  # pragma: no cover
                 plt.plot(self.calc_grid_position(current.x, self.min_x),
                          self.calc_grid_position(current.y, self.min_y), "xc")
                 # for stopping simulation with the esc key.
@@ -105,7 +108,7 @@ class AStarPlanner:
                     plt.pause(0.001)
 
             if current.x == goal_node.x and current.y == goal_node.y:
-                print("Find goal")
+                # print("Find goal")
                 goal_node.parent_index = current.parent_index
                 goal_node.cost = current.cost
                 break
@@ -202,15 +205,15 @@ class AStarPlanner:
         self.min_y = round(min(oy))
         self.max_x = round(max(ox))
         self.max_y = round(max(oy))
-        print("min_x:", self.min_x)
-        print("min_y:", self.min_y)
-        print("max_x:", self.max_x)
-        print("max_y:", self.max_y)
+        # print("min_x:", self.min_x)
+        # print("min_y:", self.min_y)
+        # print("max_x:", self.max_x)
+        # print("max_y:", self.max_y)
 
         self.x_width = round((self.max_x - self.min_x) / self.resolution)
         self.y_width = round((self.max_y - self.min_y) / self.resolution)
-        print("x_width:", self.x_width)
-        print("y_width:", self.y_width)
+        # print("x_width:", self.x_width)
+        # print("y_width:", self.y_width)
 
         # obstacle map generation
         self.obstacle_map = [[False for _ in range(self.y_width)]
@@ -239,25 +242,73 @@ class AStarPlanner:
 
         return motion
 
+    def _define_sign(self, start, goal):
+        
+        if start[0] >= goal[0] and start[1] >= goal[1]:
+            return [start[0]+10, start[1]+10], [goal[0]-10, goal[1]-10] 
+        if start[0] < goal[0] and start[1] >= goal[1]:
+            return [start[0]-10, start[1]+10], [goal[0]+10, goal[1]-10] 
+        if start[0] >= goal[0] and start[1] < goal[1]:
+            return [start[0]-10, start[1]-10], [goal[0]+10, goal[1]+10]
+        if start[0] < goal[0] and start[1] < goal[1]:
+            return [start[0]+10, start[1]-10], [goal[0]-10, goal[1]+10] 
 
-    def plan(self, obstacle, waypoints, conf):
+    def _define_min_max(self, start, goal):
+        boundery_start_x = start[0]
+        boundery_start_y = start[1]
+        boundery_goal_x = goal[0]
+        boundery_goal_y = goal[1]
+        
 
-        show_animation = conf['show_animation']
+        if boundery_goal_x < boundery_start_x:
+            bound_x_min = boundery_goal_x
+            bound_x_max = boundery_start_x
+        elif boundery_start_x < boundery_goal_x:
+            bound_x_min = boundery_start_x
+            bound_x_max = boundery_goal_x
+        
+        if boundery_goal_y < boundery_start_y:
+            bound_y_min = boundery_goal_y
+            bound_y_max = boundery_start_y
+        elif boundery_start_y < boundery_goal_y:
+            bound_y_min = boundery_start_y
+            bound_y_max = boundery_goal_y
+
+        return [bound_x_min, bound_y_min], [bound_x_max, bound_y_max]
 
 
-        bound_x_min = waypoints['current']['x'] - 10
-        bound_y_min = waypoints['current']['y'] - 10
-        bound_x_max = waypoints['future']['x'] + 10
-        bound_y_max = waypoints['future']['y'] + 10
+    def plan(self, obstacle, waypoints):
+
 
         # set position
         start_x = waypoints['current']['x']
         start_y = waypoints['current']['y']
         goal_x = waypoints['future']['x']
         goal_y = waypoints['future']['y'] 
+        boundery_start, boundery_goal = self._define_sign([start_x, start_y],[goal_x, goal_y])
         obstacle_x = obstacle['x']
         obstacle_y = obstacle['y'] 
-        radius = 2
+
+        boundery_min, boundery_max = self._define_min_max(boundery_start, boundery_goal)
+        
+        bound_x_min = boundery_min[0]
+        bound_y_min = boundery_min[1]
+        bound_x_max = boundery_max[0]
+        bound_y_max = boundery_max[1]
+
+        # inboundery_min, inboundery_max = self._define_min_max([start_x, start_y],[goal_x, goal_y])
+        # inbound_x_min = inboundery_min[0]
+        # inbound_y_min = inboundery_min[1]
+        # inbound_x_max = inboundery_max[0]
+        # inbound_y_max = inboundery_max[1]
+
+
+        # if (obstacle_x < inbound_x_min or obstacle_x > inbound_x_max) or (obstacle_y < inbound_y_min or obstacle_y > inbound_y_max):
+        if (obstacle_x < bound_x_min or obstacle_x > bound_x_max) or (obstacle_y < bound_y_min or obstacle_y > bound_y_max):
+            return "halted because obstacles are outside from in-boundary"
+        
+
+        radius = 4
 
         ox, oy = [], []
 
@@ -280,8 +331,9 @@ class AStarPlanner:
                     ox.append(i)
                     oy.append(j)
 
-        
-        if show_animation:  # pragma: no cover
+        self.ox = ox
+        self.oy = oy 
+        if self.show_animation:  # pragma: no cover
             plt.plot(ox, oy, ".k")
             plt.plot(start_x, start_y, "og")
             plt.plot(goal_x, goal_y, "xb")
@@ -291,39 +343,10 @@ class AStarPlanner:
         self.calc_obstacle_map(ox, oy)
         rx, ry = self.planning(start_x, start_y, goal_x, goal_y)
 
-        if show_animation:  # pragma: no cover
+        if self.show_animation:  # pragma: no cover
             plt.plot(rx, ry, "-r")
             plt.pause(0.001)
             plt.show()
 
-        r = np.vstack((rx, ry)).T
+        r = np.vstack((rx, ry)).T * 0.1
         return r
-
-# [MainThread]:[INFO]:[desire_obs]: [[121, 170, 124, 10.038589837620414], [194, 220, 194, 8.550409229749338]]
-# [MainThread]:[INFO]:[obs_cord]: [[-8.001838867598128, 4.154927083510945], [-4.178279810920673, 0.30544520198809166]]
-# [MainThread]:[INFO]:[current_wps]: [-4.72  0.    1.  ]
-# [MainThread]:[INFO]:[current_pose]: [-3.9374944663536526, 1.0448495127335694e-05]
-
-# if __name__ == '__main__':
-#     obs = {
-#         'x': -400,
-#         'y': 30
-#     }
-
-#     waypoints = {
-#         'current': {
-#             'x': -390,
-#             'y': 100
-#         },
-#         'future': {
-#             'x': -470,
-#             'y': 0
-#         }
-#     }
-
-#     conf = {
-#         'show_animation': True,
-#         'resolution': 10
-#     }
-#     a = AStarPlanner(resolution=1, rr=1)
-#     a.plan(obstacle=obs, waypoints=waypoints, conf=conf)

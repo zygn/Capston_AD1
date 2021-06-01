@@ -39,6 +39,7 @@ class TempPath:
         for x in self.obs_poses:
             _,_,_,tmp_idx = nearest_point_on_trajectory(x, self.global_wps)
             obs_idx.append(tmp_idx)
+        # print(obs_idx)
         # print(np.min(obs_idx))
         return np.min(obs_idx)
         

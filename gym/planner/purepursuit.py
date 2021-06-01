@@ -273,7 +273,7 @@ class PurePursuitPlanner:
             return None
 
 
-    def _find_obstacle_between_wpts(self): 
+    def find_obstacle_between_wpts(self): 
         _wpts = self.global_waypoints
 
         # for x in self.expect_obs:
@@ -288,11 +288,13 @@ class PurePursuitPlanner:
             if _minimum in i:
                 _lowest_obs_point = i
         
+        self.shortest_obs_pose = _lowest_obs_point
+
         if len(_lowest_obs_point) != 0:
             obs_x = _lowest_obs_point[0]
             obs_y = _lowest_obs_point[1]
 
-            _between_wpts = _wpts[self.i2-1: self.i2+1]
+            _between_wpts = _wpts[self.i2-5: self.i2+2]
             if len(_between_wpts) != 0:
                 wps_near_x = _between_wpts[0][0]
                 wps_near_y = _between_wpts[0][1]
@@ -311,13 +313,12 @@ class PurePursuitPlanner:
         
 
 
-        
-
     def plan(self, pose_x, pose_y, pose_theta, lookahead_distance, vgain):
         position = np.array([pose_x, pose_y])
         self.position = position
         lookahead_point = self._get_current_waypoint(self.waypoints, lookahead_distance, position, pose_theta)
 
+        self.current_waypoint = lookahead_point
         if lookahead_point is None:
             return 4.0, 0.0
 
