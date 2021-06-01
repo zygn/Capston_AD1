@@ -74,9 +74,16 @@ class AStarPlanner:
         open_set, closed_set = dict(), dict()
         open_set[self.calc_grid_index(start_node)] = start_node
 
+<<<<<<< Updated upstream
         WEIGHT = float(random.random() * 3)
         print("weight:", WEIGHT)
 
+=======
+        WEIGHT = 1.0
+        # WEIGHT = float(random.random() * 3)
+        # print("weight:", WEIGHT)
+        show_animation = True
+>>>>>>> Stashed changes
         while 1:
             if len(open_set) == 0:
                 print("Open set is empty..")
@@ -236,6 +243,7 @@ class AStarPlanner:
 
         return motion
 
+<<<<<<< Updated upstream
 
 def main():
     print(__file__ + " start!!")
@@ -288,3 +296,92 @@ def main():
 if __name__ == '__main__':
     for _ in range(10):
         main()
+=======
+    def plan(self, obstacle, waypoints, conf):
+
+        show_animation = conf['show_animation']
+
+
+        bound_x_min = waypoints['current']['x'] - 10
+        bound_y_min = waypoints['current']['y'] - 10
+        bound_x_max = waypoints['future']['x'] + 10
+        bound_y_max = waypoints['future']['y'] + 10
+
+        # set position
+        start_x = waypoints['current']['x']
+        start_y = waypoints['current']['y']
+        goal_x = waypoints['future']['x']
+        goal_y = waypoints['future']['y'] 
+        obstacle_x = obstacle['x']
+        obstacle_y = obstacle['y'] 
+        radius = 2
+
+        ox, oy = [], []
+
+        for i in range(bound_x_min, bound_x_max):
+            ox.append(i)
+            oy.append(bound_y_min)
+        for i in range(bound_y_min, bound_y_max):
+            ox.append(bound_x_min)
+            oy.append(i)
+        for i in range(bound_y_min, bound_y_max+1):
+            oy.append(i)
+            ox.append(bound_x_max)
+        for i in range(bound_x_min, bound_x_max+1):
+            oy.append(bound_y_max)
+            ox.append(i)
+
+        for i in range(obstacle_x-radius, obstacle_x+radius):
+            for j in range(obstacle_y-radius, obstacle_y + radius):
+                if ((i - obstacle_x)**2 + (j - obstacle_y)**2) <= radius**2:
+                    ox.append(i)
+                    oy.append(j)
+
+        
+        if show_animation:  # pragma: no cover
+            plt.plot(ox, oy, ".k")
+            plt.plot(start_x, start_y, "og")
+            plt.plot(goal_x, goal_y, "xb")
+            plt.grid(True)
+            plt.axis("equal")
+
+        self.calc_obstacle_map(ox, oy)
+        rx, ry = self.planning(start_x, start_y, goal_x, goal_y)
+
+        if show_animation:  # pragma: no cover
+            plt.plot(rx, ry, "-r")
+            plt.pause(0.001)
+            plt.show()
+
+        r = np.vstack((rx, ry)).T
+        return r
+
+# [MainThread]:[INFO]:[desire_obs]: [[121, 170, 124, 10.038589837620414], [194, 220, 194, 8.550409229749338]]
+# [MainThread]:[INFO]:[obs_cord]: [[-8.001838867598128, 4.154927083510945], [-4.178279810920673, 0.30544520198809166]]
+# [MainThread]:[INFO]:[current_wps]: [-4.72  0.    1.  ]
+# [MainThread]:[INFO]:[current_pose]: [-3.9374944663536526, 1.0448495127335694e-05]
+
+# if __name__ == '__main__':
+#     obs = {
+#         'x': -400,
+#         'y': 30
+#     }
+
+#     waypoints = {
+#         'current': {
+#             'x': -390,
+#             'y': 100
+#         },
+#         'future': {
+#             'x': -470,
+#             'y': 0
+#         }
+#     }
+
+#     conf = {
+#         'show_animation': True,
+#         'resolution': 10
+#     }
+#     a = AStarPlanner(resolution=1, rr=1)
+#     a.plan(obstacle=obs, waypoints=waypoints, conf=conf)
+>>>>>>> Stashed changes

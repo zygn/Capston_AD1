@@ -29,6 +29,7 @@ if __name__ == '__main__':
         start = time.time()
         speeds = [0]
         temp_obs = obs['scans'][0][360:720]
+<<<<<<< Updated upstream
 
         while not done:
             desire_obs = list()
@@ -60,6 +61,47 @@ if __name__ == '__main__':
 
             temp_obs = obs['scans'][0][360:720]
 
+=======
+        # log.info(f"[temp_obs]: {temp_obs}")
+        while not done:
+            desire_obs = list()
+
+            planner.load_laser_point(obs['scans'][0])
+            planner.load_poses(obs['poses_x'][0], obs['poses_y'][0])
+            planner.get_obstacle_trajectory()
+            obs_cord = planner.expect_obs
+
+            current_pose = [obs['poses_x'][0],obs['poses_y'][0]]
+            log.info(f"[obs_cord]: {obs_cord}")
+            current_wps = planner.current_waypoint
+            log.info(f"[current_wps]: {current_wps}")
+            log.info(f"[current_pose]: {current_pose}")
+            astar_flag = planner._find_obstacle_between_wpts()
+
+            local.input_poses(current_pose, obs_cord)
+            goal_idx = local.set_goal() + 3
+            goal_cord = planner.get_wpts_from_idx(goal_idx)
+
+
+            if astar_flag:
+                a = AStarPlanner(1,1)
+                _obs = {
+                    'x': int(obs_cord[1][0] * 10),
+                    'y': int(obs_cord[1][1] * 10)
+                }
+                _points = {
+                    'current': {
+                        'x': int(current_pose[0] * 10),
+                        'y': int(current_pose[1] * 10)
+                    },
+                    'future': {
+                        'x': int(goal_cord[0] * 10),
+                        'y': int(goal_cord[1] * 10)
+                    }
+                }
+                new_trac = a.plan(obstacle=_obs, waypoints=_points, conf={'show_animation': True})
+                print(new_trac)
+>>>>>>> Stashed changes
 
             speed, steer = planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], work['tlad'], work['vgain'])
             speeds.append(speed)
@@ -67,5 +109,6 @@ if __name__ == '__main__':
             obs, step_reward, done, info = env.step(np.array(action))
             laptime += step_reward
             env.render(mode='human')
+            # time.sleep(1000)
 
         print('Sim elapsed time:', laptime, 'Real elapsed time:', time.time()-start)
