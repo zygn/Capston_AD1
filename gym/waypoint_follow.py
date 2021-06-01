@@ -5,7 +5,7 @@ import numpy as np
 from argparse import Namespace
 from matplotlib import pyplot as plt 
 from planner.purepursuit import PurePursuitPlanner
-# from obs_avoidance import TempPath
+from obs_avoidance import TempPath
 
 
 
@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
         env.render()
         planner = PurePursuitPlanner(conf, 0.17145+0.15875)
-        # local = TempPath(conf)
+        local = TempPath(conf)
 
         laptime = 0.0
         start = time.time()
@@ -63,6 +63,7 @@ if __name__ == '__main__':
             obstacles_dist = []
             obstacles_theta = []
             obs_cord = []
+
             for i in range(len(desire_obs)):
                 obs_mid_idx = (desire_obs[i][0] + desire_obs[i][1])//2 + 360
                 obs_dist = obs['scans'][0][obs_mid_idx]
@@ -71,14 +72,15 @@ if __name__ == '__main__':
                 else:
                     obs_theta = obs_mid_idx
 
-                x = obs_dist * np.cos(obs_theta)
-                y = obs_dist * np.sin(obs_theta)
+                x = obs['poses_x'][0] + (obs_dist * np.cos(obs_theta))
+                y = obs['poses_y'][0] + (obs_dist * np.sin(obs_theta))
                 obs_cord.append([x,y])
                 
             print(obs_cord)
             current_pose = [obs['poses_x'][0],obs['poses_y'][0]]
-            # local.input_poses(current_pose,obs_cord)
-            # local.check_collision()
+            current_wps = planner.current_waypoint
+            local.input_poses(current_pose,obs_cord)
+            local.create_obs_map()
 
 
             speed, steer = planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], work['tlad'], work['vgain'])

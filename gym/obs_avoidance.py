@@ -26,16 +26,27 @@ class TempPath:
         
     def load_waypoints(self, conf):
         # load wps
-        self.global_waypoints = np.loadtxt(conf.wpt_path, delimiter=conf.wpt_delim, skiprows=conf.wpt_rowskip)
+        temp = np.loadtxt(conf.wpt_path, delimiter=conf.wpt_delim, skiprows=conf.wpt_rowskip)
+        self.global_wps = np.vstack((temp[:,self.conf.wpt_xind], temp[:,self.conf.wpt_yind])).T
     
-    def input_poses(self, pose, obs_poses):
-        self.current_poses = pose
+    def input_poses(self, current_wps, obs_poses):
+        self.current_wps = current_wps
         self.obs_poses = obs_poses
     
-    def check_collision(self):
+    def create_obs_map(self):
+        
+        _dists = []
+        _idxs = []
         
         for i in range(len(self.obs_poses)):
-            temp = nearest_point_on_trajectory(self.obs_poses[i],self.global_waypoints)
-            print(temp)
+            _, temp_dists, _, temp_idx = nearest_point_on_trajectory(self.obs_poses[i],self.global_wps)
+            _dists.append(temp_dists)
+            _idxs.append(temp_idx)
+        
+        goal_idx = _idxs[np.argmax(_dists)]
+        
+        # print(_dists)
+        # print(_idxs)
+        # print(goal_idx)
     
 
