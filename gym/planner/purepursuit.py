@@ -1,8 +1,11 @@
 
 import numpy as np
 from argparse import Namespace
-
+import logging as log 
 from numba import njit
+
+
+log.basicConfig(format='[PurePursuitPlanner]:[%(levelname)s]:%(message)s', level=log.INFO)
 
 """
 Planner Helpers
@@ -144,6 +147,7 @@ class PurePursuitPlanner:
         self.conf = conf
         self.load_waypoints(conf)
         self.max_reacquire = 20.
+        self.current_waypoint = []
 
     def load_waypoints(self, conf):
         # load waypoints
@@ -151,7 +155,11 @@ class PurePursuitPlanner:
 
     def _get_current_waypoint(self, waypoints, lookahead_distance, position, theta):
         wpts = np.vstack((self.waypoints[:, self.conf.wpt_xind], self.waypoints[:, self.conf.wpt_yind])).T
+
         nearest_point, nearest_dist, t, i = nearest_point_on_trajectory(position, wpts)
+        log.info(nearest_point)
+        log.info(nearest_dist)
+
         if nearest_dist < lookahead_distance:
             lookahead_point, i2, t2 = first_point_on_trajectory_intersecting_circle(position, lookahead_distance, wpts, i+t, wrap=True)
             if i2 == None:
@@ -161,6 +169,7 @@ class PurePursuitPlanner:
             current_waypoint[0:2] = wpts[i2, :]
             # speed
             current_waypoint[2] = waypoints[i, self.conf.wpt_vind]
+            log.info(current_waypoint)
             return current_waypoint
         elif nearest_dist < self.max_reacquire:
             return np.append(wpts[i, :], waypoints[i, self.conf.wpt_vind])
@@ -171,7 +180,8 @@ class PurePursuitPlanner:
         position = np.array([pose_x, pose_y])
         lookahead_point = self._get_current_waypoint(self.waypoints, lookahead_distance, position, pose_theta)
 
-        if lookahead_point is None:
+        self.current_waypoint = lookahead_point
+        if lookahead_point is None:  
             return 4.0, 0.0
 
         speed, steering_angle = get_actuation(pose_theta, lookahead_point, position, lookahead_distance, self.wheelbase)
