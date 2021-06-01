@@ -5,6 +5,7 @@ import numpy as np
 from argparse import Namespace
 from matplotlib import pyplot as plt 
 from planner.purepursuit import PurePursuitPlanner
+# from obs_avoidance import TempPath
 
 
 
@@ -24,11 +25,11 @@ if __name__ == '__main__':
 
         env.render()
         planner = PurePursuitPlanner(conf, 0.17145+0.15875)
+        # local = TempPath(conf)
 
         laptime = 0.0
         start = time.time()
         speeds = [0]
-        temp_right_obs = obs['scans'][0][360:540]
 
         temp_obs = obs['scans'][0][360:720]
         print(temp_obs)
@@ -48,30 +49,37 @@ if __name__ == '__main__':
                     
                     end_idx_temp = i
 
-                    temp_obs_step = [0]*6
+                    temp_obs_step = [0]*4
                     temp_obs_step[0] = start_idx_temp
                     temp_obs_step[1] = end_idx_temp
                     temp_obs_step[2] = max_idx_temp
                     temp_obs_step[3] = temp_obs[max_idx_temp]
-                    temp_obs_step[4] = np.argmin(temp_obs)
-                    temp_obs_step[5] = np.min(temp_obs)
 
                     desire_obs.append(temp_obs_step)
                 i += 1
             
             print(desire_obs)
             
-            obs_min_dist = desire_obs[0][2]
-            obs_min_theta = np.deg2rad(desire_obs[0][3] + 360)/4
-            avoid_goal_cord = [obs_min_dist*np.cos(obs_min_theta), obs_min_dist*np.sin(obs_min_theta)]
+            obstacles_dist = []
+            obstacles_theta = []
+            obs_cord = []
+            for i in range(len(desire_obs)):
+                obs_mid_idx = (desire_obs[i][0] + desire_obs[i][1])//2 + 360
+                obs_dist = obs['scans'][0][obs_mid_idx]
+                if obs_mid_idx > 540:
+                    obs_theta = np.deg2rad(((720-obs_mid_idx)+360) / 4)
+                else:
+                    obs_theta = obs_mid_idx
 
-            print(f"{obs_min_theta},{obs_min_dist},{avoid_goal_cord}")
-            
-            # obstacles_dist = obs['scans'][360+desire_obs[0],360+desire_obs[1]].copy()
-            # obstacles_theta = np.deg2rad(360 + np.range(desire_obs[0],desire_obs[1])) / 4
-            # obstacles_cord = np.meshgrid(obstacles_dist)
-            
-            # temp_obs = obs['scans'][0][360:720]
+                x = obs_dist * np.cos(obs_theta)
+                y = obs_dist * np.sin(obs_theta)
+                obs_cord.append([x,y])
+                
+            print(obs_cord)
+            current_pose = [obs['poses_x'][0],obs['poses_y'][0]]
+            # local.input_poses(current_pose,obs_cord)
+            # local.check_collision()
+
 
             speed, steer = planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], work['tlad'], work['vgain'])
             speed = 1
