@@ -12,6 +12,7 @@ See Wikipedia article (https://en.wikipedia.org/wiki/A*_search_algorithm)
 import math
 import random
 import matplotlib.pyplot as plt
+import numpy as np
 
 show_animation = True
 
@@ -74,16 +75,11 @@ class AStarPlanner:
         open_set, closed_set = dict(), dict()
         open_set[self.calc_grid_index(start_node)] = start_node
 
-<<<<<<< Updated upstream
-        WEIGHT = float(random.random() * 3)
-        print("weight:", WEIGHT)
-
-=======
         WEIGHT = 1.0
         # WEIGHT = float(random.random() * 3)
         # print("weight:", WEIGHT)
         show_animation = True
->>>>>>> Stashed changes
+
         while 1:
             if len(open_set) == 0:
                 print("Open set is empty..")
@@ -243,60 +239,7 @@ class AStarPlanner:
 
         return motion
 
-<<<<<<< Updated upstream
 
-def main():
-    print(__file__ + " start!!")
-
-    # start and goal position
-    sx = 10.0  # [m]
-    sy = 10.0  # [m]
-    gx = 50.0  # [m]
-    gy = 50.0  # [m]
-    grid_size = 1.0  # [m]
-    robot_radius = 1.0  # [m]
-
-    # set obstacle positions
-    ox, oy = [], []
-    for i in range(-10, 60):
-        ox.append(i)
-        oy.append(-10.0)
-    for i in range(-10, 60):
-        ox.append(60.0)
-        oy.append(i)
-    for i in range(-10, 61):
-        ox.append(i)
-        oy.append(60.0)
-    for i in range(-10, 61):
-        ox.append(-10.0)
-        oy.append(i)
-    for i in range(-10, 40):
-        ox.append(20.0)
-        oy.append(i)
-    for i in range(0, 40):
-        ox.append(40.0)
-        oy.append(60.0 - i)
-
-    if show_animation:  # pragma: no cover
-        plt.plot(ox, oy, ".k")
-        plt.plot(sx, sy, "og")
-        plt.plot(gx, gy, "xb")
-        plt.grid(True)
-        plt.axis("equal")
-
-    a_star = AStarPlanner(ox, oy, grid_size, robot_radius)
-    rx, ry = a_star.planning(sx, sy, gx, gy)
-
-    if show_animation:  # pragma: no cover
-        plt.plot(rx, ry, "-r")
-        plt.pause(0.001)
-        plt.show()
-
-
-if __name__ == '__main__':
-    for _ in range(10):
-        main()
-=======
     def plan(self, obstacle, waypoints, conf):
 
         show_animation = conf['show_animation']
@@ -384,4 +327,3 @@ if __name__ == '__main__':
 #     }
 #     a = AStarPlanner(resolution=1, rr=1)
 #     a.plan(obstacle=obs, waypoints=waypoints, conf=conf)
->>>>>>> Stashed changes

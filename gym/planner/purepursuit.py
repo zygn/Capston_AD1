@@ -1,7 +1,7 @@
 
 import numpy as np
 from argparse import Namespace
-
+import logging as log
 from numba import njit
 
 """
@@ -179,14 +179,12 @@ class PurePursuitPlanner:
         self.conf = conf
         self.load_waypoints(conf)
         self.max_reacquire = 20.
-<<<<<<< Updated upstream
-=======
+
         self.position = []
         self.current_waypoint = []
         self.laser_point = []
         self.i, self.i2 = 0, 0
 
->>>>>>> Stashed changes
 
     def load_waypoints(self, conf):
         # load waypoints
@@ -253,10 +251,9 @@ class PurePursuitPlanner:
     def _get_current_waypoint(self, waypoints, lookahead_distance, position, theta):
         wpts = np.vstack((self.waypoints[:, self.conf.wpt_xind], self.waypoints[:, self.conf.wpt_yind])).T
         nearest_point, nearest_dist, t, i = nearest_point_on_trajectory(position, wpts)
-<<<<<<< Updated upstream
-=======
+
         self.i = i
->>>>>>> Stashed changes
+
         if nearest_dist < lookahead_distance:
             lookahead_point, i2, t2 = first_point_on_trajectory_intersecting_circle(position, lookahead_distance, wpts, i+t, wrap=True)
             if i2 == None:
@@ -268,11 +265,7 @@ class PurePursuitPlanner:
             # speed
             self.i2 = i2
             current_waypoint[2] = waypoints[i, self.conf.wpt_vind]
-<<<<<<< Updated upstream
-=======
 
-
->>>>>>> Stashed changes
             return current_waypoint
         elif nearest_dist < self.max_reacquire:
             return np.append(wpts[i, :], waypoints[i, self.conf.wpt_vind])

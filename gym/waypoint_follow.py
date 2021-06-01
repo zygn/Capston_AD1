@@ -4,7 +4,10 @@ import gym
 import numpy as np
 from argparse import Namespace
 from matplotlib import pyplot as plt 
+import logging as log
 from planner.purepursuit import PurePursuitPlanner
+from planner.astar import AStarPlanner
+from obs_avoidance import TempPath
 
 
 
@@ -24,45 +27,12 @@ if __name__ == '__main__':
 
         env.render()
         planner = PurePursuitPlanner(conf, 0.17145+0.15875)
+        local = TempPath(conf)
 
         laptime = 0.0
         start = time.time()
         speeds = [0]
-        temp_obs = obs['scans'][0][360:720]
-<<<<<<< Updated upstream
 
-        while not done:
-            desire_obs = list()
-            print(f"X: {obs['poses_x']}, Y: {obs['poses_y']}")
-            for i in range(1, len(temp_obs) - 1):
-                if (temp_obs[i] > 5. and temp_obs[i] < 15.) and (temp_obs[i-1] * 1.4 < temp_obs[i] or temp_obs[i-1] * 0.6 > temp_obs[i]):
-                    start_idx_temp = i
-                    end_idx_temp = i
-                    max_idx_temp = i
-                    i += 1
-                    
-                    while temp_obs[i] > 5. and temp_obs[i-1] * 1.1 > temp_obs[i] and temp_obs[i-1] * 0.9 < temp_obs[i] and (i+1 < len(temp_obs)):
-                        if temp_obs[i] > temp_obs[max_idx_temp]:
-                            max_idx_temp = i
-                        i += 1
-                    
-                    end_idx_temp = i
-
-                    temp_obs_step = [0]*4
-                    temp_obs_step[0] = start_idx_temp
-                    temp_obs_step[1] = end_idx_temp
-                    temp_obs_step[2] = max_idx_temp
-                    temp_obs_step[3] = temp_obs[max_idx_temp]
-
-                    desire_obs.append(temp_obs_step)
-                i += 1
-            
-            print(desire_obs)
-
-            temp_obs = obs['scans'][0][360:720]
-
-=======
-        # log.info(f"[temp_obs]: {temp_obs}")
         while not done:
             desire_obs = list()
 
@@ -101,7 +71,7 @@ if __name__ == '__main__':
                 }
                 new_trac = a.plan(obstacle=_obs, waypoints=_points, conf={'show_animation': True})
                 print(new_trac)
->>>>>>> Stashed changes
+
 
             speed, steer = planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], work['tlad'], work['vgain'])
             speeds.append(speed)
