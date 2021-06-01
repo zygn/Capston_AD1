@@ -67,8 +67,9 @@ class AStarPlanner:
         open_set, closed_set = dict(), dict()
         open_set[self.calc_grid_index(start_node)] = start_node
 
-        WEIGHT = float(random.random() * 3)
-        print("weight:", WEIGHT)
+        WEIGHT = 2.0
+        # WEIGHT = float(random.random() * 3)
+        # print("weight:", WEIGHT)
 
         while 1:
             if len(open_set) == 0:
@@ -228,20 +229,61 @@ class AStarPlanner:
 
         return motion
 
+    def plan(self, obstacle, waypoints, conf):
+
+        bound_x_min = waypoints['current']['x'] - 1
+        bound_y_min = waypoints['current']['y'] - 1
+        bound_x_max = waypoints['future']['x'] + 1
+        bound_y_max = waypoints['future']['y'] + 1
+
+        # set position
+        start_x = waypoints['current']['x']
+        start_y = waypoints['current']['y']
+        goal_x = waypoints['future']['x']
+        goal_y = waypoints['future']['y']
+        obstacle_x = obstacle['x']
+        obstacle_y = obstacle['y']
+
+        ox, oy = [], []
+        for i in range(bound_x_min, bound_x_max):
+            ox.append(i)
+            oy.append(60.0)
+        for i in range(bound_y_min, bound_y_max):
+            ox.append(i)
+            oy.append(-10.0)
+        for i in range(-10, 60):
+            ox.append(60.0)
+            oy.append(i)
+        for i in range(-10, 61):
+            ox.append(i)
+            oy.append(60.0)
+        for i in range(-10, 61):
+            ox.append(-10.0)
+            oy.append(i)
+        
+
+
+        
+        pass 
+        
+
+
 
 def main():
     print(__file__ + " start!!")
 
     # start and goal position
-    sx = 10.0  # [m]
-    sy = 10.0  # [m]
+    sx = 0.0  # [m]
+    sy = 0.0  # [m]
     gx = 50.0  # [m]
     gy = 50.0  # [m]
-    grid_size = 1.0  # [m]
+    grid_size = 1  # [m]
     robot_radius = 1.0  # [m]
 
     # set obstacle positions
     ox, oy = [], []
+
+
     for i in range(-10, 60):
         ox.append(i)
         oy.append(-10.0)
@@ -254,12 +296,19 @@ def main():
     for i in range(-10, 61):
         ox.append(-10.0)
         oy.append(i)
-    for i in range(-10, 40):
-        ox.append(20.0)
-        oy.append(i)
-    for i in range(0, 40):
-        ox.append(40.0)
-        oy.append(60.0 - i)
+
+    obstacle_boundery_x = 10
+    obstacle_boundery_y = 20
+    radius = 5
+
+    for i in range(obstacle_boundery_x-radius, obstacle_boundery_x+radius):
+        for j in range(obstacle_boundery_y-radius, obstacle_boundery_y + radius):
+            if ((i - obstacle_boundery_x)**2 + (j - obstacle_boundery_y)**2) <= radius**2:
+                ox.append(i)
+                oy.append(j)
+
+
+    
 
     if show_animation:  # pragma: no cover
         plt.plot(ox, oy, ".k")
