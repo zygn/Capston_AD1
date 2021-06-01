@@ -42,3 +42,6 @@ optim_method: 'CMA'
 
 # seed
 seed: 12345
+
+# map resolution
+resolution : 0.062500

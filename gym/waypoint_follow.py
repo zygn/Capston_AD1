@@ -86,26 +86,21 @@ if __name__ == '__main__':
             current_wps = planner.current_waypoint
             log.info(f"[current_wps]: {current_wps}")
             log.info(f"[current_pose]: {current_pose}")
-            local.input_poses(current_pose,obs_cord)
-            local.create_obs_map()
 
             if len(obs_cord) != 0 and len(current_wps) != 0 and int(laptime) == 5:
-                a = AStarPlanner(0.1,1)
-                _obs = {
-                    'x': obs_cord[1][0],
-                    'y': obs_cord[1][1]
-                }
+                a = AStarPlanner(conf.resolution,1)
+                _obs = obs_cord
                 _points = {
                     'current': {
                         'x': current_pose[0],
                         'y': current_pose[1]
                     },
                     'future': {
-                        'x': current_wps[0],
-                        'y': current_wps[1]
+                        'x': current_wps[0]+10,
+                        'y': current_wps[1]+10
                     }
                 }
-                a.plan(obstacle=_obs, waypoints=_points, conf={'show_animation': True, 'resolution': 10})
+                a.plan(obstacle=_obs, waypoints=_points, conf={'show_animation': True})
 
             speed, steer = planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], work['tlad'], work['vgain'])
             speed = 1

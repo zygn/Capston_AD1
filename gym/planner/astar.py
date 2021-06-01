@@ -233,7 +233,7 @@ class AStarPlanner:
     def plan(self, obstacle, waypoints, conf):
 
         show_animation = conf['show_animation']
-        resolution = conf['resolution']
+        resolution = self.resolution
 
 
         bound_x_min = -int(waypoints['current']['x'] * resolution)
@@ -246,9 +246,9 @@ class AStarPlanner:
         start_y = int(waypoints['current']['y'] * resolution)
         goal_x = int(waypoints['future']['x'] * resolution)
         goal_y = int(waypoints['future']['y'] * resolution)
-        obstacle_x = int(obstacle['x'] * resolution)
-        obstacle_y = int(obstacle['y'] * resolution)
-        radius = 1
+        
+        
+        radius = self.rr
 
         ox, oy = [], []
 
@@ -264,12 +264,15 @@ class AStarPlanner:
         for i in range(bound_x_min, bound_x_max+1):
             oy.append(bound_y_max)
             ox.append(i)
-
-        for i in range(obstacle_x-radius, obstacle_x+radius):
-            for j in range(obstacle_y-radius, obstacle_y + radius):
-                if ((i - obstacle_x)**2 + (j - obstacle_y)**2) <= radius**2:
-                    ox.append(i)
-                    oy.append(j)
+        
+        for x in obstacle:
+            obs_x = int(x[0] * resolution)
+            obs_y = int(x[1] * resolution)
+            for i in range(int(obs_x-radius), int(obs_x+radius)):
+                for j in range(int(obs_y-radius), int(obs_y + radius)):
+                    if ((i - obs_x)**2 + (j - obs_y)**2) <= radius**2:
+                        ox.append(i)
+                        oy.append(j)
 
         
         if show_animation:  # pragma: no cover
