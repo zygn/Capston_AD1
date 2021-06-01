@@ -2,11 +2,14 @@ import time
 import yaml
 import gym
 import numpy as np
+import logging as log
 from argparse import Namespace
 from matplotlib import pyplot as plt 
 from planner.purepursuit import PurePursuitPlanner
 from obs_avoidance import TempPath
 
+
+log.basicConfig(format='[MainThread]:[%(levelname)s]:%(message)s', level=log.INFO)
 
 
 if __name__ == '__main__':
@@ -32,7 +35,7 @@ if __name__ == '__main__':
         speeds = [0]
 
         temp_obs = obs['scans'][0][360:720]
-        print(temp_obs)
+        log.info(f"[temp_obs]: {temp_obs}")
         while not done:
             desire_obs = list()
             for i in range(1, len(temp_obs) - 1):
@@ -58,7 +61,7 @@ if __name__ == '__main__':
                     desire_obs.append(temp_obs_step)
                 i += 1
             
-            print(desire_obs)
+            log.info(f"[desire_obs]: {desire_obs}")
             
             obstacles_dist = []
             obstacles_theta = []
@@ -76,7 +79,7 @@ if __name__ == '__main__':
                 y = obs['poses_y'][0] + (obs_dist * np.sin(obs_theta))
                 obs_cord.append([x,y])
                 
-            print(obs_cord)
+            log.info(f"[obs_cord]: {obs_cord}")
             current_pose = [obs['poses_x'][0],obs['poses_y'][0]]
             current_wps = planner.current_waypoint
             local.input_poses(current_pose,obs_cord)
