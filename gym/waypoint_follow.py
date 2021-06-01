@@ -7,12 +7,14 @@ from argparse import Namespace
 from matplotlib import pyplot as plt 
 from planner.purepursuit import PurePursuitPlanner
 from obs_avoidance import TempPath
+from planner.astar import AStarPlanner
 
 
-log.basicConfig(format='[MainThread]:[%(levelname)s]:%(message)s', level=log.INFO)
 
 
 if __name__ == '__main__':
+
+    log.basicConfig(format='[MainThread]:[%(levelname)s]:%(message)s', level=log.INFO)
 
     work = {'mass': 3.463388126201571, 'lf': 0.15597534362552312, 'tlad': 0.82461887897713965, 'vgain': 0.90338203837889}
     # with open('./obs_example/config_obs.yaml') as file:
@@ -82,9 +84,28 @@ if __name__ == '__main__':
             log.info(f"[obs_cord]: {obs_cord}")
             current_pose = [obs['poses_x'][0],obs['poses_y'][0]]
             current_wps = planner.current_waypoint
+            log.info(f"[current_wps]: {current_wps}")
+            log.info(f"[current_pose]: {current_pose}")
             local.input_poses(current_pose,obs_cord)
             local.create_obs_map()
 
+            if len(obs_cord) != 0 and len(current_wps) != 0 and int(laptime) == 5:
+                a = AStarPlanner(0.1,1)
+                _obs = {
+                    'x': obs_cord[1][0],
+                    'y': obs_cord[1][1]
+                }
+                _points = {
+                    'current': {
+                        'x': current_pose[0],
+                        'y': current_pose[1]
+                    },
+                    'future': {
+                        'x': current_wps[0],
+                        'y': current_wps[1]
+                    }
+                }
+                a.plan(obstacle=_obs, waypoints=_points, conf={'show_animation': True, 'resolution': 10})
 
             speed, steer = planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], work['tlad'], work['vgain'])
             speed = 1

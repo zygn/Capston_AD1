@@ -5,7 +5,7 @@ import logging as log
 from numba import njit
 
 
-log.basicConfig(format='[PurePursuitPlanner]:[%(levelname)s]:%(message)s', level=log.INFO)
+
 
 """
 Planner Helpers
@@ -143,6 +143,8 @@ class PurePursuitPlanner:
     Example Planner
     """
     def __init__(self, conf, wb):
+        log.basicConfig(format='[PurePursuitPlanner]:[%(levelname)s]:%(message)s', level=log.INFO)
+        
         self.wheelbase = wb
         self.conf = conf
         self.load_waypoints(conf)
@@ -167,7 +169,7 @@ class PurePursuitPlanner:
             current_waypoint[0:2] = wpts[i2, :]
             # speed
             current_waypoint[2] = waypoints[i, self.conf.wpt_vind]
-            log.info(f"[current_waypoint]: {current_waypoint}")
+
             return current_waypoint
         elif nearest_dist < self.max_reacquire:
             return np.append(wpts[i, :], waypoints[i, self.conf.wpt_vind])

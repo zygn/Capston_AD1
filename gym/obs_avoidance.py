@@ -44,6 +44,7 @@ class TempPath:
             _idxs.append(temp_idx)
         
         goal_idx = _idxs[np.argmax(_dists)]
+        print(goal_idx)
         
         # print(_dists)
         # print(_idxs)

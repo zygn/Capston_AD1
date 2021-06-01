@@ -8,6 +8,7 @@ See Wikipedia article (https://en.wikipedia.org/wiki/A*_search_algorithm)
 import math
 import random
 import matplotlib.pyplot as plt
+import numpy as np
 
 show_animation = True
 
@@ -16,7 +17,7 @@ class AStarPlanner:
 
     
 
-    def __init__(self, ox, oy, resolution, rr):
+    def __init__(self, resolution, rr):
         """
         Initialize grid map for a star planning
         ox: x position list of Obstacles [m]
@@ -32,7 +33,7 @@ class AStarPlanner:
         self.obstacle_map = None
         self.x_width, self.y_width = 0, 0
         self.motion = self.get_motion_model()
-        self.calc_obstacle_map(ox, oy)
+        
 
 
     class Node:
@@ -70,12 +71,12 @@ class AStarPlanner:
         WEIGHT = 2.0
         # WEIGHT = float(random.random() * 3)
         # print("weight:", WEIGHT)
-
+        show_animation = False
         while 1:
             if len(open_set) == 0:
                 print("Open set is empty..")
                 break
-
+            
             c_id = min(
                 open_set,
                 key=lambda o: open_set[o].cost + self.calc_heuristic(WEIGHT, 
@@ -192,15 +193,15 @@ class AStarPlanner:
         self.min_y = round(min(oy))
         self.max_x = round(max(ox))
         self.max_y = round(max(oy))
-        print("min_x:", self.min_x)
-        print("min_y:", self.min_y)
-        print("max_x:", self.max_x)
-        print("max_y:", self.max_y)
+        # print("min_x:", self.min_x)
+        # print("min_y:", self.min_y)
+        # print("max_x:", self.max_x)
+        # print("max_y:", self.max_y)
 
         self.x_width = round((self.max_x - self.min_x) / self.resolution)
         self.y_width = round((self.max_y - self.min_y) / self.resolution)
-        print("x_width:", self.x_width)
-        print("y_width:", self.y_width)
+        # print("x_width:", self.x_width)
+        # print("y_width:", self.y_width)
 
         # obstacle map generation
         self.obstacle_map = [[False for _ in range(self.y_width)]
@@ -231,101 +232,84 @@ class AStarPlanner:
 
     def plan(self, obstacle, waypoints, conf):
 
-        bound_x_min = waypoints['current']['x'] - 1
-        bound_y_min = waypoints['current']['y'] - 1
-        bound_x_max = waypoints['future']['x'] + 1
-        bound_y_max = waypoints['future']['y'] + 1
+        show_animation = conf['show_animation']
+        resolution = conf['resolution']
+
+
+        bound_x_min = -int(waypoints['current']['x'] * resolution)
+        bound_y_min = -int(waypoints['current']['y'] * resolution)
+        bound_x_max = int(waypoints['future']['x'] * resolution)
+        bound_y_max = int(waypoints['future']['y'] * resolution)
 
         # set position
-        start_x = waypoints['current']['x']
-        start_y = waypoints['current']['y']
-        goal_x = waypoints['future']['x']
-        goal_y = waypoints['future']['y']
-        obstacle_x = obstacle['x']
-        obstacle_y = obstacle['y']
+        start_x = int(waypoints['current']['x'] * resolution)
+        start_y = int(waypoints['current']['y'] * resolution)
+        goal_x = int(waypoints['future']['x'] * resolution)
+        goal_y = int(waypoints['future']['y'] * resolution)
+        obstacle_x = int(obstacle['x'] * resolution)
+        obstacle_y = int(obstacle['y'] * resolution)
+        radius = 1
 
         ox, oy = [], []
+
         for i in range(bound_x_min, bound_x_max):
             ox.append(i)
-            oy.append(60.0)
+            oy.append(bound_y_min)
         for i in range(bound_y_min, bound_y_max):
-            ox.append(i)
-            oy.append(-10.0)
-        for i in range(-10, 60):
-            ox.append(60.0)
+            ox.append(bound_x_min)
             oy.append(i)
-        for i in range(-10, 61):
-            ox.append(i)
-            oy.append(60.0)
-        for i in range(-10, 61):
-            ox.append(-10.0)
+        for i in range(bound_y_min, bound_y_max+1):
             oy.append(i)
+            ox.append(bound_x_max)
+        for i in range(bound_x_min, bound_x_max+1):
+            oy.append(bound_y_max)
+            ox.append(i)
+
+        for i in range(obstacle_x-radius, obstacle_x+radius):
+            for j in range(obstacle_y-radius, obstacle_y + radius):
+                if ((i - obstacle_x)**2 + (j - obstacle_y)**2) <= radius**2:
+                    ox.append(i)
+                    oy.append(j)
+
         
+        if show_animation:  # pragma: no cover
+            plt.plot(ox, oy, ".k")
+            plt.plot(start_x, start_y, "og")
+            plt.plot(goal_x, goal_y, "xb")
+            plt.grid(True)
+            plt.axis("equal")
 
+        self.calc_obstacle_map(ox, oy)
+        rx, ry = self.planning(start_x, start_y, goal_x, goal_y)
 
-        
-        pass 
-        
+        if show_animation:  # pragma: no cover
+            plt.plot(rx, ry, "-r")
+            plt.pause(0.001)
+            plt.show()
 
-
-
-def main():
-    print(__file__ + " start!!")
-
-    # start and goal position
-    sx = 0.0  # [m]
-    sy = 0.0  # [m]
-    gx = 50.0  # [m]
-    gy = 50.0  # [m]
-    grid_size = 1  # [m]
-    robot_radius = 1.0  # [m]
-
-    # set obstacle positions
-    ox, oy = [], []
-
-
-    for i in range(-10, 60):
-        ox.append(i)
-        oy.append(-10.0)
-    for i in range(-10, 60):
-        ox.append(60.0)
-        oy.append(i)
-    for i in range(-10, 61):
-        ox.append(i)
-        oy.append(60.0)
-    for i in range(-10, 61):
-        ox.append(-10.0)
-        oy.append(i)
-
-    obstacle_boundery_x = 10
-    obstacle_boundery_y = 20
-    radius = 5
-
-    for i in range(obstacle_boundery_x-radius, obstacle_boundery_x+radius):
-        for j in range(obstacle_boundery_y-radius, obstacle_boundery_y + radius):
-            if ((i - obstacle_boundery_x)**2 + (j - obstacle_boundery_y)**2) <= radius**2:
-                ox.append(i)
-                oy.append(j)
-
-
+        r = np.vstack((rx, ry)).T
+        return r
     
 
-    if show_animation:  # pragma: no cover
-        plt.plot(ox, oy, ".k")
-        plt.plot(sx, sy, "og")
-        plt.plot(gx, gy, "xb")
-        plt.grid(True)
-        plt.axis("equal")
+# if __name__ == '__main__':
+#     obs = {
+#         'x': 30,
+#         'y': 22
+#     }
 
-    a_star = AStarPlanner(ox, oy, grid_size, robot_radius)
-    rx, ry = a_star.planning(sx, sy, gx, gy)
+#     waypoints = {
+#         'current': {
+#             'x': 3,
+#             'y': 4
+#         },
+#         'future': {
+#             'x': 40,
+#             'y': 50
+#         }
+#     }
 
-    if show_animation:  # pragma: no cover
-        plt.plot(rx, ry, "-r")
-        plt.pause(0.001)
-        plt.show()
-
-
-if __name__ == '__main__':
-    for _ in range(1):
-        main()
+#     conf = {
+#         'show_animation': True
+#     }
+#     a = AStarPlanner(resolution=1, rr=1)
+#     a.plan(obstacle=obs, waypoints=waypoints, conf=conf)
