@@ -311,7 +311,16 @@ class PurePursuitPlanner:
 
         return flag
         
-
+    def set_goal(self,obs_poses):
+        # print(self.obs_poses)
+        obs_idx = []
+        for x in obs_poses:
+            _,_,_,tmp_idx = nearest_point_on_trajectory(x, self.global_waypoints)
+            obs_idx.append(tmp_idx)
+        print(obs_idx)
+        # print(np.min(obs_idx))
+        return np.max(obs_idx)
+        
 
     def plan(self, pose_x, pose_y, pose_theta, lookahead_distance, vgain):
         position = np.array([pose_x, pose_y])

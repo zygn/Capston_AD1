@@ -7,7 +7,6 @@ from matplotlib import pyplot as plt
 import logging as log
 from planner.purepursuit import PurePursuitPlanner
 from planner.astar import AStarPlanner
-from obs_avoidance import TempPath
 
 
 
@@ -27,7 +26,6 @@ if __name__ == '__main__':
 
         env.render()
         planner = PurePursuitPlanner(conf, 0.17145+0.15875)
-        local = TempPath(conf)
 
         laptime = 0.0
         start = time.time()
@@ -49,8 +47,7 @@ if __name__ == '__main__':
             if astar_flag:
                 obs_cord = planner.shortest_obs_pose 
                 log.info(f"[obs_cord]: {obs_cord}")
-                local.input_poses(current_pose, obs_cord)
-                goal_idx = local.set_goal() + 3
+                goal_idx = planner .set_goal(obs_cord) + 3
                 goal_cord = planner.get_wpts_from_idx(goal_idx)
                 log.info(f"[goal_cord]: {goal_cord}")
 
