@@ -13,8 +13,8 @@ from planner.astar import AStarPlanner
 if __name__ == '__main__':
 
     work = {'mass': 3.463388126201571, 'lf': 0.15597534362552312, 'tlad': 0.82461887897713965, 'vgain': 0.90338203837889}
-    # with open('./obs_example/config_obs.yaml') as file:
-    with open('./obs_new_round/config_obs.yaml') as file:
+    with open('./obs_example/config_obs.yaml') as file:
+    # with open('./obs_new_round/config_obs.yaml') as file:
         conf_dict = yaml.load(file, Loader=yaml.FullLoader)
     conf = Namespace(**conf_dict)
     episode = 1
@@ -47,8 +47,10 @@ if __name__ == '__main__':
             if astar_flag:
                 obs_cord = planner.shortest_obs_pose 
                 log.info(f"[obs_cord]: {obs_cord}")
-                goal_idx = planner .set_goal(obs_cord) + 3
-                goal_cord = planner.get_wpts_from_idx(goal_idx)
+                goal_idx = planner .set_goal(obs_cord)
+                log.info(f"[i, i2]: {planner.i, planner.i2}")
+                log.info(f"[goal_idx]: {goal_idx}")
+                goal_cord = planner.get_wpts_from_idx(planner.i2+3)
                 log.info(f"[goal_cord]: {goal_cord}")
 
                 a = AStarPlanner(1,1)

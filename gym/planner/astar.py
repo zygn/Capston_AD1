@@ -77,7 +77,7 @@ class AStarPlanner:
         open_set, closed_set = dict(), dict()
         open_set[self.calc_grid_index(start_node)] = start_node
 
-        WEIGHT = 10.0
+        WEIGHT = 1.10
         # WEIGHT = float(random.random() * 3)
         # print("weight:", WEIGHT)
         
@@ -308,7 +308,7 @@ class AStarPlanner:
             return "halted because obstacles are outside from in-boundary"
         
 
-        radius = 4
+        radius = 2
 
         ox, oy = [], []
 
