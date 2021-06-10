@@ -30,6 +30,7 @@ if __name__ == '__main__':
         laptime = 0.0
         start = time.time()
         speeds = [0]
+        _radius = 5
 
         while not done:
             desire_obs = list()
@@ -50,10 +51,12 @@ if __name__ == '__main__':
                 goal_idx = planner .set_goal(obs_cord)
                 log.info(f"[i, i2]: {planner.i, planner.i2}")
                 log.info(f"[goal_idx]: {goal_idx}")
-                goal_cord = planner.get_wpts_from_idx(planner.i2+3)
+                goal_cord = planner.get_wpts_from_idx(planner.i2+3+(_radius//2))
                 log.info(f"[goal_cord]: {goal_cord}")
+                # wpts10 = []
+                # for i in range(planner.i, planner.i + 10): wpts10.append(planner.get_wpts_from_idx(i) * 10)
 
-                a = AStarPlanner(1,1)
+                a = AStarPlanner(1,1, False)
                 _obs = {
                     'x': int(obs_cord[0] * 10),
                     'y': int(obs_cord[1] * 10)
@@ -68,16 +71,16 @@ if __name__ == '__main__':
                         'y': int(goal_cord[1] * 10)
                     }
                 }
-                new_trac = a.plan(obstacle=_obs, waypoints=_points)
-                if type(new_trac) == type(str):
-                    log.warn(f"{new_trac}")
-                else:
-                    print(new_trac)
-
-
-            speed, steer = planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], work['tlad'], work['vgain'])
-            speeds.append(speed)
-            # speed = 1.5
+                new_trac = a.plan(obstacle=_obs, waypoints=_points,radius=_radius)
+                speed, steer = planner.avoidance_plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], obs['linear_vels_x'][0], new_trac, work['tlad'], work['vgain'])
+                # if type(new_trac) == type(str):
+                #     log.warn(f"{new_trac}")
+                # else:
+                #     print(new_trac)
+            else:
+                speed, steer = planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], work['tlad'], work['vgain'])
+                speeds.append(speed)
+                # speed = 1.5
             action = np.array([[steer, speed]])
             obs, step_reward, done, info = env.step(np.array(action))
             laptime += step_reward

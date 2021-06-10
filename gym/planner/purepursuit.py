@@ -294,7 +294,7 @@ class PurePursuitPlanner:
             obs_x = _lowest_obs_point[0]
             obs_y = _lowest_obs_point[1]
 
-            _between_wpts = _wpts[self.i2-5: self.i2+2]
+            _between_wpts = _wpts[self.i2: self.i2+3]
             if len(_between_wpts) != 0:
                 wps_near_x = _between_wpts[0][0]
                 wps_near_y = _between_wpts[0][1]
@@ -320,7 +320,25 @@ class PurePursuitPlanner:
         print(obs_idx)
         # print(np.min(obs_idx))
         return np.max(obs_idx)
-        
+
+    def avoidance_plan(self, pose_x,pose_y, pose_theta, current_speed, temp_path,lookahead_distance, vgain):
+        if type(temp_path) == str:
+            return self.plan(pose_x,pose_y,pose_theta,lookahead_distance,vgain)
+        else:
+            position = np.array([pose_x, pose_y])
+            lookahead_point = temp_path[len(temp_path)//2]
+            print("route:",temp_path)
+            waypoint_y = np.dot(np.array([np.sin(-pose_theta), np.cos(-pose_theta)]), lookahead_point[:]-position)
+            # waypoint_y = 0
+            speed = current_speed * 0.9
+            if np.abs(waypoint_y) < 1e-6:
+                return speed, 0.
+            radius = 1/(2.0*waypoint_y/lookahead_distance**2)
+            steering_angle = np.arctan(self.wheelbase/radius)
+            # speed, steering_angle = get_actuation(pose_theta, lookahead_point, position, lookahead_distance, self.wheelbase)
+            speed = vgain * speed
+
+            return speed, steering_angle        
 
     def plan(self, pose_x, pose_y, pose_theta, lookahead_distance, vgain):
         position = np.array([pose_x, pose_y])

@@ -21,7 +21,7 @@ class AStarPlanner:
 
     
 
-    def __init__(self, resolution, rr, show_animation=True):
+    def __init__(self, resolution, rr, show_animation=True, wpts10=None):
         """
         Initialize grid map for a star planning
 
@@ -40,6 +40,7 @@ class AStarPlanner:
         self.motion = self.get_motion_model()
         self.show_animation = show_animation
         self.fine = True
+        self.wpts10 = wpts10
 
 
 
@@ -243,15 +244,15 @@ class AStarPlanner:
         return motion
 
     def _define_sign(self, start, goal):
-        
+        bound = 20
         if start[0] >= goal[0] and start[1] >= goal[1]:
-            return [start[0]+10, start[1]+10], [goal[0]-10, goal[1]-10] 
+            return [start[0]+bound, start[1]+bound], [goal[0]-bound, goal[1]-bound] 
         if start[0] < goal[0] and start[1] >= goal[1]:
-            return [start[0]-10, start[1]+10], [goal[0]+10, goal[1]-10] 
+            return [start[0]-bound, start[1]+bound], [goal[0]+bound, goal[1]-bound] 
         if start[0] >= goal[0] and start[1] < goal[1]:
-            return [start[0]-10, start[1]-10], [goal[0]+10, goal[1]+10]
+            return [start[0]-bound, start[1]-bound], [goal[0]+bound, goal[1]+bound]
         if start[0] < goal[0] and start[1] < goal[1]:
-            return [start[0]+10, start[1]-10], [goal[0]-10, goal[1]+10] 
+            return [start[0]+bound, start[1]-bound], [goal[0]-bound, goal[1]+bound] 
 
     def _define_min_max(self, start, goal):
         boundery_start_x = start[0]
@@ -276,8 +277,14 @@ class AStarPlanner:
 
         return [bound_x_min, bound_y_min], [bound_x_max, bound_y_max]
 
+    # def _wpt_inside_round_radius(self, mapped_wpts, obstacle_radius):
+    #     for i in mapped_wpts:
+    #         for k in obstacle_radius:
+                
 
-    def plan(self, obstacle, waypoints):
+
+
+    def plan(self, obstacle, waypoints, radius):
 
 
         # set position
@@ -306,11 +313,9 @@ class AStarPlanner:
         # if (obstacle_x < inbound_x_min or obstacle_x > inbound_x_max) or (obstacle_y < inbound_y_min or obstacle_y > inbound_y_max):
         if (obstacle_x < bound_x_min or obstacle_x > bound_x_max) or (obstacle_y < bound_y_min or obstacle_y > bound_y_max):
             return "halted because obstacles are outside from in-boundary"
-        
-
-        radius = 2
 
         ox, oy = [], []
+        radius_x, radius_y = [], []
 
         for i in range(bound_x_min, bound_x_max):
             ox.append(i)
@@ -328,6 +333,8 @@ class AStarPlanner:
         for i in range(obstacle_x-radius, obstacle_x+radius):
             for j in range(obstacle_y-radius, obstacle_y + radius):
                 if ((i - obstacle_x)**2 + (j - obstacle_y)**2) <= radius**2:
+                    radius_x.append(i)
+                    radius_y.append(j)
                     ox.append(i)
                     oy.append(j)
 
