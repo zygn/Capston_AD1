@@ -230,11 +230,51 @@ class AStarPlanner:
 
         return motion
 
+<<<<<<< Updated upstream
     def plan(self, obstacle, waypoints, conf):
+=======
+    def _define_sign(self, start, goal):
+        bound = 20
+        if start[0] >= goal[0] and start[1] >= goal[1]:
+            return [start[0]+bound, start[1]+bound], [goal[0]-bound, goal[1]-bound] 
+        if start[0] < goal[0] and start[1] >= goal[1]:
+            return [start[0]-bound, start[1]+bound], [goal[0]+bound, goal[1]-bound] 
+        if start[0] >= goal[0] and start[1] < goal[1]:
+            return [start[0]-bound, start[1]-bound], [goal[0]+bound, goal[1]+bound]
+        if start[0] < goal[0] and start[1] < goal[1]:
+            return [start[0]+bound, start[1]-bound], [goal[0]-bound, goal[1]+bound] 
+
+    def _define_min_max(self, start, goal):
+        boundery_start_x = start[0]
+        boundery_start_y = start[1]
+        boundery_goal_x = goal[0]
+        boundery_goal_y = goal[1]
+        
+
+        if boundery_goal_x < boundery_start_x:
+            bound_x_min = boundery_goal_x
+            bound_x_max = boundery_start_x
+        elif boundery_start_x < boundery_goal_x:
+            bound_x_min = boundery_start_x
+            bound_x_max = boundery_goal_x
+        
+        if boundery_goal_y < boundery_start_y:
+            bound_y_min = boundery_goal_y
+            bound_y_max = boundery_start_y
+        elif boundery_start_y < boundery_goal_y:
+            bound_y_min = boundery_start_y
+            bound_y_max = boundery_goal_y
+
+        return [bound_x_min, bound_y_min], [bound_x_max, bound_y_max]
+>>>>>>> Stashed changes
 
         show_animation = conf['show_animation']
         resolution = self.resolution
 
+<<<<<<< Updated upstream
+=======
+    def plan(self, obstacle, waypoints,radius):
+>>>>>>> Stashed changes
 
         bound_x_min = -int(waypoints['current']['x'] * resolution)
         bound_y_min = -int(waypoints['current']['y'] * resolution)
@@ -248,7 +288,10 @@ class AStarPlanner:
         goal_y = int(waypoints['future']['y'] * resolution)
         
         
+<<<<<<< Updated upstream
         radius = self.rr
+=======
+>>>>>>> Stashed changes
 
         ox, oy = [], []
 

@@ -176,6 +176,76 @@ class PurePursuitPlanner:
         else:
             return None
 
+<<<<<<< Updated upstream
+=======
+
+    def find_obstacle_between_wpts(self): 
+        _wpts = self.global_waypoints
+
+        # for x in self.expect_obs:
+        #     _, _, _, idx = nearest_point_on_trajectory_wo_jit(x, _wpts)
+        #     _obs_idx.append(idx)
+        _lowest_obs_point = []
+
+        flag = False
+
+        for i in self.expect_obs:
+            _minimum = np.min(np.abs(self.expect_obs))
+            if _minimum in i:
+                _lowest_obs_point = i
+        
+        self.shortest_obs_pose = _lowest_obs_point
+
+        if len(_lowest_obs_point) != 0:
+            obs_x = _lowest_obs_point[0]
+            obs_y = _lowest_obs_point[1]
+
+            _between_wpts = _wpts[self.i2-5: self.i2+2]
+            if len(_between_wpts) != 0:
+                wps_near_x = _between_wpts[0][0]
+                wps_near_y = _between_wpts[0][1]
+                wps_far_x = _between_wpts[-1][0]
+                wps_far_y = _between_wpts[-1][1]
+
+                if wps_near_x <= obs_x and wps_far_x >= obs_x or wps_near_y <= obs_y and wps_far_y >= obs_y:
+                    log.warn('obstacle detection')
+                    flag = True
+
+                if wps_near_x >= obs_x and wps_far_x <= obs_x or wps_near_y >= obs_y and wps_far_y <= obs_y:
+                    log.warn('obstacle detection')
+                    flag = True 
+
+        return flag
+        
+    def set_goal(self,obs_poses):
+        # print(self.obs_poses)
+        obs_idx = []
+        for x in obs_poses:
+            _,_,_,tmp_idx = nearest_point_on_trajectory(x, self.global_waypoints)
+            obs_idx.append(tmp_idx)
+        # print(obs_idx)
+        # print(np.min(obs_idx))
+        if np.min(obs_idx) == 0:
+            return np.max(obs_idx)
+        else:
+            return np.min(obs_idx)
+        
+    def avoidance_plan(self, pose_x, pose_y, pose_theta, temp_path, lookahead_distance, vgain):
+        position = np.array([pose_x, pose_y])
+        lookahead_point = temp_path[0]
+        # waypoint_y = np.dot(np.array([np.sin(-pose_theta), np.cos(-pose_theta)]), lookahead_point-position)
+        waypoint_y = 0
+        speed = 1.0
+        if np.abs(waypoint_y) < 1e-6:
+            return speed, 0.
+        radius = 1/(2.0*waypoint_y/lookahead_distance**2)
+        steering_angle = np.arctan(self.wheelbase/radius)
+        # speed, steering_angle = get_actuation(pose_theta, lookahead_point, position, lookahead_distance, self.wheelbase)
+        speed = vgain * speed
+
+        return speed, steering_angle
+    
+>>>>>>> Stashed changes
     def plan(self, pose_x, pose_y, pose_theta, lookahead_distance, vgain):
         position = np.array([pose_x, pose_y])
         lookahead_point = self._get_current_waypoint(self.waypoints, lookahead_distance, position, pose_theta)

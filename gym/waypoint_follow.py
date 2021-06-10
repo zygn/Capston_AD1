@@ -86,10 +86,30 @@ if __name__ == '__main__':
             current_wps = planner.current_waypoint
             log.info(f"[current_wps]: {current_wps}")
             log.info(f"[current_pose]: {current_pose}")
+<<<<<<< Updated upstream
 
             if len(obs_cord) != 0 and len(current_wps) != 0 and int(laptime) == 5:
                 a = AStarPlanner(conf.resolution,1)
                 _obs = obs_cord
+=======
+            astar_flag = planner.find_obstacle_between_wpts()
+            # astar_flag = False
+
+            if astar_flag:
+                obs_cord = planner.shortest_obs_pose 
+                log.info(f"[obs_cord]: {obs_cord}")
+                goal_idx = planner .set_goal(obs_cord)
+                log.info(f"[i, i2]: {planner.i, planner.i2}")
+                log.info(f"[goal_idx]: {goal_idx}")
+                goal_cord = planner.get_wpts_from_idx(planner.i2+3)
+                log.info(f"[goal_cord]: {goal_cord}")
+
+                a = AStarPlanner(1,1,show_animation=1)
+                _obs = {
+                    'x': int(obs_cord[0] * 10),
+                    'y': int(obs_cord[1] * 10)
+                }
+>>>>>>> Stashed changes
                 _points = {
                     'current': {
                         'x': current_pose[0],
@@ -100,6 +120,7 @@ if __name__ == '__main__':
                         'y': current_wps[1]+10
                     }
                 }
+<<<<<<< Updated upstream
                 a.plan(obstacle=_obs, waypoints=_points, conf={'show_animation': True})
 
             speed, steer = planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], work['tlad'], work['vgain'])
@@ -107,6 +128,19 @@ if __name__ == '__main__':
             # steer, speed = [0,10]
             # print(obs['poses_x'][0], obs['poses_y'][0])
             speeds.append(speed)
+=======
+                new_trac = a.plan(obstacle=_obs, waypoints=_points, radius=5)
+                speed, steer = planner.avoidance_plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], new_trac, work['tlad'], work['vgain'])
+                speeds.append(speed)
+                # if type(new_trac) == type(str):
+                #     log.warn(f"{new_trac}")
+                # else:
+                #     print(new_trac)
+            else:
+                speed, steer = planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], work['tlad'], work['vgain'])
+                speeds.append(speed)
+                # speed = 1.5
+>>>>>>> Stashed changes
             action = np.array([[steer, speed]])
             obs, step_reward, done, info = env.step(np.array(action))
             laptime += step_reward
