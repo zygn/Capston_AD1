@@ -176,8 +176,6 @@ class PurePursuitPlanner:
         else:
             return None
 
-<<<<<<< Updated upstream
-=======
 
     def find_obstacle_between_wpts(self): 
         _wpts = self.global_waypoints
@@ -245,7 +243,6 @@ class PurePursuitPlanner:
 
         return speed, steering_angle
     
->>>>>>> Stashed changes
     def plan(self, pose_x, pose_y, pose_theta, lookahead_distance, vgain):
         position = np.array([pose_x, pose_y])
         lookahead_point = self._get_current_waypoint(self.waypoints, lookahead_distance, position, pose_theta)

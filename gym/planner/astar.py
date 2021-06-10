@@ -230,9 +230,6 @@ class AStarPlanner:
 
         return motion
 
-<<<<<<< Updated upstream
-    def plan(self, obstacle, waypoints, conf):
-=======
     def _define_sign(self, start, goal):
         bound = 20
         if start[0] >= goal[0] and start[1] >= goal[1]:
@@ -266,16 +263,12 @@ class AStarPlanner:
             bound_y_max = boundery_goal_y
 
         return [bound_x_min, bound_y_min], [bound_x_max, bound_y_max]
->>>>>>> Stashed changes
 
         show_animation = conf['show_animation']
         resolution = self.resolution
 
-<<<<<<< Updated upstream
-=======
     def plan(self, obstacle, waypoints,radius):
->>>>>>> Stashed changes
-
+    
         bound_x_min = -int(waypoints['current']['x'] * resolution)
         bound_y_min = -int(waypoints['current']['y'] * resolution)
         bound_x_max = int(waypoints['future']['x'] * resolution)
@@ -288,10 +281,6 @@ class AStarPlanner:
         goal_y = int(waypoints['future']['y'] * resolution)
         
         
-<<<<<<< Updated upstream
-        radius = self.rr
-=======
->>>>>>> Stashed changes
 
         ox, oy = [], []
 
