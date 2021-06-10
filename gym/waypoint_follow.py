@@ -13,6 +13,7 @@ from planner.astar import AStarPlanner
 if __name__ == '__main__':
 
     work = {'mass': 3.463388126201571, 'lf': 0.15597534362552312, 'tlad': 0.82461887897713965, 'vgain': 0.90338203837889}
+    # work = {'mass': 3.463388126201571, 'lf': 0.15597534362552312, 'tlad': 0.82461887897713965, 'vgain': 0.75}
     with open('./obs_example/config_obs.yaml') as file:
     # with open('./obs_new_round/config_obs.yaml') as file:
         conf_dict = yaml.load(file, Loader=yaml.FullLoader)
@@ -30,7 +31,7 @@ if __name__ == '__main__':
         laptime = 0.0
         start = time.time()
         speeds = [0]
-        _radius = 5
+        _radius = 7
 
         while not done:
             desire_obs = list()
@@ -42,6 +43,7 @@ if __name__ == '__main__':
             current_wps = planner.current_waypoint
             log.info(f"[current_wps]: {current_wps}")
             log.info(f"[current_pose]: {current_pose}")
+            log.info(f"[next_wp]: {planner.get_wpts_from_idx(planner.i2+3)}")
             astar_flag = planner.find_obstacle_between_wpts()
             # astar_flag = False
 
@@ -51,10 +53,10 @@ if __name__ == '__main__':
                 goal_idx = planner .set_goal(obs_cord)
                 log.info(f"[i, i2]: {planner.i, planner.i2}")
                 log.info(f"[goal_idx]: {goal_idx}")
-                goal_cord = planner.get_wpts_from_idx(planner.i2+3+(_radius//2))
+                goal_cord = planner.get_wpts_from_idx(planner.i2+3)
                 log.info(f"[goal_cord]: {goal_cord}")
-                # wpts10 = []
-                # for i in range(planner.i, planner.i + 10): wpts10.append(planner.get_wpts_from_idx(i) * 10)
+                wpts10 = []
+                for i in range(planner.i2+3, planner.i2 + 10): wpts10.append(planner.get_wpts_from_idx(i))
 
                 a = AStarPlanner(1,1, False)
                 _obs = {
@@ -69,22 +71,23 @@ if __name__ == '__main__':
                     'future': {
                         'x': int(goal_cord[0] * 10),
                         'y': int(goal_cord[1] * 10)
-                    }
+                    },
+                    'moongtange': wpts10
                 }
                 new_trac = a.plan(obstacle=_obs, waypoints=_points,radius=_radius)
                 speed, steer = planner.avoidance_plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], obs['linear_vels_x'][0], new_trac, work['tlad'], work['vgain'])
-                # if type(new_trac) == type(str):
-                #     log.warn(f"{new_trac}")
+                if type(new_trac) == type(str):
+                    log.warn(f"{new_trac}")
                 # else:
                 #     print(new_trac)
             else:
                 speed, steer = planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], work['tlad'], work['vgain'])
                 speeds.append(speed)
                 # speed = 1.5
-            action = np.array([[steer, speed]])
+            action = np.array([[steer, 1]])
             obs, step_reward, done, info = env.step(np.array(action))
             laptime += step_reward
-            env.render(mode='human')
+            env.render(mode='human_fast')
             # time.sleep(1000)
 
         print('Sim elapsed time:', laptime, 'Real elapsed time:', time.time()-start)

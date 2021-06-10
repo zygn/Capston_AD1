@@ -276,22 +276,18 @@ class AStarPlanner:
             bound_y_max = boundery_goal_y
 
         return [bound_x_min, bound_y_min], [bound_x_max, bound_y_max]
-
-    # def _wpt_inside_round_radius(self, mapped_wpts, obstacle_radius):
-    #     for i in mapped_wpts:
-    #         for k in obstacle_radius:
                 
 
 
 
     def plan(self, obstacle, waypoints, radius):
 
-
         # set position
         start_x = waypoints['current']['x']
         start_y = waypoints['current']['y']
         goal_x = waypoints['future']['x']
         goal_y = waypoints['future']['y'] 
+        wpts10 = waypoints['moongtange'] * 10
         boundery_start, boundery_goal = self._define_sign([start_x, start_y],[goal_x, goal_y])
         obstacle_x = obstacle['x']
         obstacle_y = obstacle['y'] 
@@ -315,7 +311,7 @@ class AStarPlanner:
             return "halted because obstacles are outside from in-boundary"
 
         ox, oy = [], []
-        radius_x, radius_y = [], []
+        
 
         for i in range(bound_x_min, bound_x_max):
             ox.append(i)
@@ -329,14 +325,22 @@ class AStarPlanner:
         for i in range(bound_x_min, bound_x_max+1):
             oy.append(bound_y_max)
             ox.append(i)
+        
+        roundx = []
+        roundy = []
 
         for i in range(obstacle_x-radius, obstacle_x+radius):
             for j in range(obstacle_y-radius, obstacle_y + radius):
                 if ((i - obstacle_x)**2 + (j - obstacle_y)**2) <= radius**2:
-                    radius_x.append(i)
-                    radius_y.append(j)
                     ox.append(i)
+                    roundx.append(i)
                     oy.append(j)
+                    roundy.append(j)
+
+        if goal_x in roundx and goal_y in roundy:
+            goal_x = int(wpts10[3][0])
+            goal_y = int(wpts10[3][1])
+            
 
         self.ox = ox
         self.oy = oy 

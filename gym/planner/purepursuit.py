@@ -171,8 +171,8 @@ def nearest_point_on_trajectory_wo_jit(point, trajectory):
 
 class PurePursuitPlanner:
     
-    OBSTACLE_MIN_DEGREE = 360
-    OBSTACLE_MAX_DEGREE = 720
+    OBSTACLE_MIN_DEGREE = 360 
+    OBSTACLE_MAX_DEGREE = 720 
 
     def __init__(self, conf, wb):
         self.wheelbase = wb
@@ -184,6 +184,7 @@ class PurePursuitPlanner:
         self.current_waypoint = []
         self.laser_point = []
         self.i, self.i2 = 0, 0
+        print(len(self.waypoints))
 
 
     def load_waypoints(self, conf):
@@ -317,17 +318,20 @@ class PurePursuitPlanner:
         for x in obs_poses:
             _,_,_,tmp_idx = nearest_point_on_trajectory(x, self.global_waypoints)
             obs_idx.append(tmp_idx)
-        print(obs_idx)
+        # print(obs_idx)
         # print(np.min(obs_idx))
-        return np.max(obs_idx)
+        if np.min(obs_idx) == 0:
+            return np.max(obs_idx)
+        else:
+            return np.min(obs_idx)
 
     def avoidance_plan(self, pose_x,pose_y, pose_theta, current_speed, temp_path,lookahead_distance, vgain):
         if type(temp_path) == str:
             return self.plan(pose_x,pose_y,pose_theta,lookahead_distance,vgain)
         else:
             position = np.array([pose_x, pose_y])
-            lookahead_point = temp_path[len(temp_path)//2]
-            print("route:",temp_path)
+            lookahead_point = temp_path[int(len(temp_path)/2)]
+            # print("route:",temp_path)
             waypoint_y = np.dot(np.array([np.sin(-pose_theta), np.cos(-pose_theta)]), lookahead_point[:]-position)
             # waypoint_y = 0
             speed = current_speed * 0.9
