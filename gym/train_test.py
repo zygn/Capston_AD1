@@ -12,7 +12,7 @@ import logging as log
 from tensorflow import keras
 from planner.purepursuit import PurePursuitPlanner
 from planner.astar import AStarPlanner
-from rl.agent.DQN import NN,Agent,processing,make_state
+from agent.DQN import NN,Agent,processing,make_state
 
 if __name__ == '__main__':
 
