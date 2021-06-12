@@ -290,7 +290,6 @@ class F110Env(gym.Env, utils.EzPickle):
         self.current_obs = obs
 
         # times
-        reward = self.timestep
         self.current_time = self.current_time + self.timestep
         
         # update data member
@@ -299,6 +298,10 @@ class F110Env(gym.Env, utils.EzPickle):
         # check done
         done, toggle_list = self._check_done()
         info = {'checkpoint_done': toggle_list}
+        
+        detect = min(obs['scans'])/self.timestep
+        
+        reward = detect * np.sin(action[0])
 
         return obs, reward, done, info
 
