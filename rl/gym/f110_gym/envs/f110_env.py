@@ -202,52 +202,38 @@ class F110Env(gym.Env, utils.EzPickle):
         
         poses_x = np.array(self.poses_x)-self.start_xs
         poses_y = np.array(self.poses_y)-self.start_ys
-        #print('poses_x:',self.poses_x)
-        #print('poses_y:',self.poses_y)
-        #print('start_xs:',self.start_xs)
-        #print('start_ys',self.start_ys)
-        #print('poses_x:',poses_x)
-        #print('poses_y:',poses_y)
+        
         delta_pt = np.dot(self.start_rot, np.stack((poses_x, poses_y), axis=0))
-        #print('delta-pt:',delta_pt)
+        
         temp_y = delta_pt[1,:]
-        #print('y:',temp_y)
+        
         idx1 = temp_y > left_t
-        #print('idx1:',idx1)
+        
         idx2 = temp_y < -right_t
-        #print('idx2:',idx2)
+        
         temp_y[idx1] -= left_t
         temp_y[idx2] = -right_t - temp_y[idx2]
-        #print('temp_y:',temp_y)
-        #print('what:',[np.invert(np.logical_or(idx1, idx2))])
+        
         temp_y[np.invert(np.logical_or(idx1, idx2))] = 0
 
         dist2 = delta_pt[0,:]**2 + temp_y**2
         closes = dist2 <= 0.1
         for i in range(self.num_agents):
-            #print('closes:',closes)
-            #lap당 도착
+            
             if closes[i] and not self.near_starts[i]:
                 self.near_starts[i] = True
                 self.toggle_list[i] += 1
-                #print('1-1:',self.near_starts)
-                #print('1-2:',self.toggle_list)
-                #print()
-            #lap당 출발    
+                  
             elif not closes[i] and self.near_starts[i]:
                 self.near_starts[i] = False
                 self.toggle_list[i] += 1
-                #print('2-1:',self.near_starts)
-                #print('2-2:',self.toggle_list)
-                #print()
+                
             self.lap_counts[i] = self.toggle_list[i] // 2
-            #print('lap_counts:',self.lap_counts)
-            #print()
+            
             if self.toggle_list[i] < 4:
                 self.lap_times[i] = self.current_time
-                #print('lap_times:',self.lap_times)
-                #print()
-        #print('toggle_list:',self.toggle_list)
+                
+
         
         done = (self.collisions[self.ego_idx]) or np.all(self.toggle_list >= 4)
         
@@ -281,7 +267,6 @@ class F110Env(gym.Env, utils.EzPickle):
             done (bool): if the simulation is done
             info (dict): auxillary information dictionary
         """
-        #print('action',action)
         # call simulation step
         obs = self.sim.step(action)
         obs['lap_times'] = self.lap_times
@@ -290,6 +275,7 @@ class F110Env(gym.Env, utils.EzPickle):
         self.current_obs = obs
 
         # times
+        reward = self.timestep
         self.current_time = self.current_time + self.timestep
         
         # update data member
@@ -298,10 +284,6 @@ class F110Env(gym.Env, utils.EzPickle):
         # check done
         done, toggle_list = self._check_done()
         info = {'checkpoint_done': toggle_list}
-        
-        detect = min(obs['scans'])/self.timestep
-        
-        reward = detect * np.sin(action[0])
 
         return obs, reward, done, info
 
