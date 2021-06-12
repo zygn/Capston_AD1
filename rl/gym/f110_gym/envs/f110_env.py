@@ -290,7 +290,7 @@ class F110Env(gym.Env, utils.EzPickle):
         self.current_obs = obs
 
         # times
-        reward = self.timestep#이걸 바꾸면 강화학습 가능 근데 바꿀수 있나?
+        reward = self.timestep
         self.current_time = self.current_time + self.timestep
         
         # update data member
