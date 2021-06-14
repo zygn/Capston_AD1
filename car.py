@@ -87,7 +87,21 @@ def make_circle(loc, r):
         # points = np.append(points, np.array([[x, y]]), axis = 0)
         
     return points
+
+def make_oval(obs_loc, r, dis): # 장애물 위치, 장애물로부터 떨어질 거리(단반경), 회피를 시작하기 위한 장애물 과의 거리(장반경)
+    ang = np.linspace(0, 2 * np.pi, 21)
+    points = np.empty((0,2), float)
+    for i in ang:
+        x, y = dis * np.cos(i), dis * np.sin(i)
+        if -1e-6 < x and x < 1e-6: x = 0
+        if -1e-6 < y and y < 1e-6: y = 0
+        x = x / ( dis / r )
+        
+        points = np.append(points, np.array([[x + obs_loc[0], y + obs_loc[1]]]), axis=0)
     
+    return points
+
+
 inp = np.array([[0,0,0,0,0,1,0,0,0,0,0]])
 P = DQN(inp, 1)
 rALL = P.ln()
